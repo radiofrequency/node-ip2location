@@ -150,6 +150,9 @@ IP2LMemoryMapList *IP2LocationSetupShared(FILE *filehandle, size_t dbfilesize, c
 
   if (mmlnode == NULL) {
 
+    /* make shm world readable */
+    //save current umask
+    mode_t old_umask = umask(0);
     if ( ( shm_fd = shm_open(shared_name, O_RDWR | O_CREAT | O_EXCL, 0777) ) != -1 ) {
       /* shared mem was created by us */
       DB_loaded = 0;
@@ -158,6 +161,8 @@ IP2LMemoryMapList *IP2LocationSetupShared(FILE *filehandle, size_t dbfilesize, c
       /* opening shared mem has failed */
       return NULL;
     }
+     // restore old
+    umask(old_umask);
 
     if (DB_loaded == 0) {
       /* extend shared mem above database size */
